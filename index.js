@@ -1,0 +1,103 @@
+const BACKGROUND = "#101010";
+const FOREGROUND = "#50FF50";
+
+console.log(game);
+game.width = 800;
+game.height = 800;
+
+const ctx = game.getContext('2d');
+console.log(ctx);
+
+function clear() {
+    ctx.fillStyle = BACKGROUND;
+    ctx.fillRect(0, 0, game.width, game.height);
+}
+
+function point({x, y}) {
+    const s = 20;
+    ctx.fillStyle = FOREGROUND;
+    ctx.fillRect(x - s/2, y - s/2, s, s);
+}
+
+function line(p1, p2) {
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = FOREGROUND;
+    ctx.stroke();
+}
+
+function screen(p) {
+    // -1...1 => 0...2 => 0...1 => 0...w
+    return {
+        x: (p.x + 1)/2*game.width,
+        y: (1 - (p.y + 1)/2)*game.height,
+    }
+}
+
+function project({ x, y, z}) {
+    return {
+        x: x/z,
+        y: y/z,
+    }
+}
+
+// const points = [
+//     {x: -0.25, y: -0.25, z: 0.25},
+//     {x: 0.25, y: -0.25, z: 0.25},
+//     {x: 0.25, y: 0.25, z: 0.25},
+//     {x: -0.25, y: 0.25, z: 0.25},
+
+//     {x: -0.25, y: -0.25, z: -0.25},
+//     {x: 0.25, y: -0.25, z: -0.25},
+//     {x: 0.25, y: 0.25, z: -0.25},
+//     {x: -0.25, y: 0.25, z: -0.25},
+// ];
+
+// const faces = [
+//     [0, 1, 2, 3],
+//     [4, 5, 6, 7],
+//     [0,4],
+//     [1,5],
+//     [2,6],
+//     [3,7],
+// ]
+
+function translate_z({x,y,z}, dz) {
+    return {x, y, z: z + dz};
+}
+
+function rotate_xz({x, y, z}, angle) {
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    return {
+        x: x*c-z*s,
+        y: y,
+        z: x*s+z*c,
+    };
+}
+
+const FPS = 60;
+let angle = 0;
+let dz = 1;
+
+function frame() {
+    const dt = 1/FPS;
+    // dz += 1*dt; // this will help move it away
+    angle += Math.PI*dt;
+    clear();
+    // points.forEach(p => {
+    //     point(screen(project(translate_z(rotate_xz(p, angle), dz))));
+    // });
+    faces.forEach(face => {
+        for (let i = 0; i < face.length; i++) {
+            const p1 = screen(project(translate_z(rotate_xz(points[face[i]], angle), dz)));
+            const p2 = screen(project(translate_z(rotate_xz(points[face[(i+1)%face.length]], angle), dz)));
+            line(p1, p2);
+        }
+    });
+    setTimeout(frame, 1000/FPS);
+}
+
+setTimeout(frame, 1000/FPS);
