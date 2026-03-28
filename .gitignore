@@ -1,1 +1,8 @@
-*.vs
+*.exe
+/.vs
+/PhysicsEngine/build
+/PhysicsEngine/out
+/PhysicsEngine/output/*
+!/PhysicsEngine/output/.gitkeep
+*.lib
+*.obj
