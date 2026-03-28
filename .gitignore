@@ -1,0 +1,8 @@
+*.exe
+/.vs
+/build
+/out
+/output/*
+!/output/.gitkeep
+*.lib
+*.obj
