@@ -29,9 +29,7 @@ int main() {
 		if (!renderer) {
 			throw std::runtime_error(SDL_GetError());
 		}
-
-		float target_ms = 1000.0f / 60.0f;
-		Uint64 start = SDL_GetTicks(), elapsed = 0;
+		SDL_SetRenderVSync(renderer, 1);
 
 		while (!done) {
 			SDL_Event event;
@@ -49,12 +47,6 @@ int main() {
 			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // black
 			SDL_RenderClear(renderer);
 			SDL_RenderPresent(renderer);
-
-			elapsed = SDL_GetTicks() - start;
-			if (elapsed < target_ms) {
-				SDL_Delay((Uint32)(target_ms - elapsed));
-			}
-			start = SDL_GetTicks();
 		}
 
 		SDL_DestroyRenderer(renderer);
