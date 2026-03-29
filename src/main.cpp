@@ -1,14 +1,65 @@
 #include <iostream>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #include "appe/math/vec3.h"
 
 int main() {
 	std::cout << "----- PHYSICS ENGINE by abhinavp06 -----" << std::endl;
 
 	try {
-		Vec3 a(2.0f, 4.0f, -1.0f);
-		Vec3 b(3.0f, 6.0f, 9.0f);
-		Vec3 result = cross(a, b);
-		printf("%f %f %f\n", result.x, result.y, result.z);
+		SDL_Window* window;
+		bool done = false;
+
+		SDL_Init(SDL_INIT_VIDEO);
+
+		window = SDL_CreateWindow(
+			"appe window",
+			800,
+			600,
+			0
+		);
+
+		if (window == NULL) {
+			const char* window_error = SDL_GetError();
+			SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", window_error);
+			throw std::runtime_error(window_error);
+		}
+
+		SDL_Renderer* renderer = SDL_CreateRenderer(window, NULL);
+		if (!renderer) {
+			throw std::runtime_error(SDL_GetError());
+		}
+
+		float target_ms = 1000.0f / 60.0f;
+		Uint64 start = SDL_GetTicks(), elapsed = 0;
+
+		while (!done) {
+			SDL_Event event;
+
+			while (SDL_PollEvent(&event)) {
+				if (event.type == SDL_EVENT_QUIT) {
+					done = true;
+				}
+				if (event.type == SDL_EVENT_KEY_DOWN &&
+					event.key.key == SDLK_ESCAPE) {
+					done = true;
+				}
+			}
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);  // black
+			SDL_RenderClear(renderer);
+			SDL_RenderPresent(renderer);
+
+			elapsed = SDL_GetTicks() - start;
+			if (elapsed < target_ms) {
+				SDL_Delay((Uint32)(target_ms - elapsed));
+			}
+			start = SDL_GetTicks();
+		}
+
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
 	} catch (const std::exception& e) {
 		std::cerr << "[Error] " << e.what() << "\n";
 		return 1;
